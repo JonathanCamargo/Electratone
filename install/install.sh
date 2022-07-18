@@ -7,28 +7,31 @@
 # Run the install.sh script from where it lives
 curDir=`pwd`
 
+mkdir $HOME/apps
 cd $HOME/apps
 
-wget https://github.com/Spotifyd/spotifyd/releases/download/v0.3.3/spotifyd-linux-armhf-full.tar.gz
-tar -xvf spotifyd-linux-armhf-full.tar.gz
-rm spotifyd-linux-armhf-full.tar.gz
+spotifyVersion="spotifyd-linux-armv6-slim.tar.gz"
+
+wget https://github.com/Spotifyd/spotifyd/releases/download/v0.3.3/$spotifyVersion
+tar -xvf $spotifyVersion
+rm $spotifyVersion
 
 wget https://raw.githubusercontent.com/Spotifyd/spotifyd/master/contrib/spotifyd.service -O spotifyd.service
 sed -i 's?/usr/bin/spotifyd?'`pwd`'\/spotifyd?' spotifyd.service 
-
 
 # Set up service
 sudo mv spotifyd.service /etc/systemd/user/spotifyd.service
 # Run as user
 mkdir -p ~/.config/systemd/user/
-nano ~/.config/systemd/user/spotifyd.service
+touch ~/.config/systemd/user/spotifyd.service
 systemctl --user daemon-reload
 
 # Create a config file
-mkdir ~/.config/spotifyd/
-cp  $(curDir)/.spotifyd.conf ~/.config/spotifyd/spotifyd.conf
-echo "Please set the user and pass in $curDir/.spotifyd.conf"
-
+mkdir -p ~/.config/spotifyd/
+cp  $curDir/spotifyd.conf ~/.config/spotifyd/spotifyd.conf
+echo "Please set the user and pass in $curDir/spotifyd.conf"
+sleep 5
+nano ~/.config/spotifyd/spotifyd.conf
 # Start the service at boot
-sudo loginctl enable-linger ossip
+sudo loginctl enable-linger pi
 systemctl --user enable spotifyd.service
